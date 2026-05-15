@@ -1,23 +1,26 @@
-import { BrowserRouter, Routes, Route, Link} from 'react-router-dom';
-import Inicio from './pages/Inicio';
-import Consultas from './pages/Consultas';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import Servicios from './pages/Servicios'; // Importación con el nuevo nombre
 
 function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-      <BrowserRouter>
-        {/* Constante */}
-        <nav>
-          <Link to = "/">Inicio</Link>
-          <Link to = "/consultas">Consultas Civiles</Link>
-        </nav>
-        {/* Dinamico */}
-        <div>
-          <Routes>
-            <Route path = "/" element = {<Inicio />} />
-            <Route path = "/consultas" element = {<Consultas />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
+    <BrowserRouter>
+    
+      <Header onOpenMenu={() => setMenuOpen(true)} />
+      
+
+
+      <main>
+        <Routes>
+
+          <Route path="/" element={<Servicios />} />
+
+        </Routes>
+      </main>
+    </BrowserRouter>
   );
 }
 
