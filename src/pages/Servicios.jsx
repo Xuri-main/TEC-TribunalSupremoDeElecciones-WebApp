@@ -2,9 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, ArrowRight, Contrast } from 'lucide-react';
 import { useAccessStore } from '../store/useAccessStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function Servicios() {
   const { fontSize, incrementFont, decrementFont, highContrast, toggleContrast } = useAccessStore();
+  const navigate = useNavigate();
 
   // Clases dinámicas de Tailwind según el estado de alto contraste
   const themeClasses = highContrast 
@@ -18,6 +20,13 @@ export default function Servicios() {
   const buttonClasses = highContrast
     ? "bg-yellow-400 text-black font-black"
     : "bg-[#003DA5] text-white hover:bg-[#002D7A] hover:text-[#FFD700]";
+
+    // Mapa de rutas: cada tag sabe a dónde llevar al usuario
+  const tagRoutes = {
+    'Consultas Civiles': '/consultas',
+    'Certificaciones Digitales': '/consultas', // placeholder hasta que exista la ruta
+    'Documento de Identidad': '/consultas',     // placeholder hasta que exista la ruta
+  };
 
   return (
     <div 
@@ -80,12 +89,13 @@ export default function Servicios() {
           
           <div className="flex flex-wrap justify-center gap-3 mt-6">
             {['Consultas Civiles', 'Certificaciones Digitales', 'Documento de Identidad'].map((tag) => (
-              <span 
-                key={tag} 
+              <button 
+                key={tag}
+                onClick={() => navigate(tagRoutes[tag])} 
                 className="px-4 py-2 bg-slate-300/60 text-slate-800 rounded-full text-xs font-bold cursor-pointer hover:bg-[#003DA5] hover:text-white transition-all shadow-sm"
               >
                 {tag}
-              </span>
+              </button>
             ))}
           </div>
         </motion.div>
