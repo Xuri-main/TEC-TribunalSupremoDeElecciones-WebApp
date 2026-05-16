@@ -31,7 +31,8 @@ const Header = () => {
         
         {/* LOGO (Maximizado en escala sin alterar el alto del header) */}
         <a href="#" className="flex items-center h-full z-50" aria-label="TSE Inicio">
-          <img 
+          <Link to="/" className="flex items-center gap-3 transition-transform duration-300 hover:scale-105">
+            <img 
             src="/LogoTSE.png" 
             alt="Logo TSE" 
             className="h-14 w-auto md:h-16 object-contain transition-transform duration-300 hover:scale-105"
@@ -41,13 +42,15 @@ const Header = () => {
               e.target.nextSibling.style.display = 'block';
             }}
           />
+          </Link>
+          
           {/* Escudo geométrico alternativo oculto en carga correcta */}
           <svg className="w-10 h-10 text-[#003DA5] hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
         </a>
 
-        {/* Navegación Desktop optimizada con React Router */}
+        {/* NAVEGACIÓN DESKTOP*/}
         <nav className="hidden lg:flex items-center gap-10">
           <Link 
             to="/sobre-el-tse" 
@@ -57,30 +60,30 @@ const Header = () => {
           >
             Sobre el TSE
           </Link>
-          <Link 
-            to="/" 
+          <a 
+            href="#" 
             className={`link-tse py-1 text-xl tracking-tight transition-colors duration-300 ${
               scrolled ? 'text-[#1A1A1A] hover:text-[#003DA5]' : 'text-white hover:text-[#CE1126]'
             }`}
           >
             Registro Civil
-          </Link>
-          <Link 
-            to="/" 
+          </a>
+          <a 
+            href="#" 
             className={`link-tse py-1 text-xl tracking-tight transition-colors duration-300 ${
               scrolled ? 'text-[#1A1A1A] hover:text-[#003DA5]' : 'text-white hover:text-[#CE1126]'
             }`}
           >
             Elecciones
-          </Link>
-          <Link 
-            to="/" 
+          </a>
+          <a 
+            href="#" 
             className={`link-tse py-1 text-xl tracking-tight transition-colors duration-300 ${
               scrolled ? 'text-[#1A1A1A] hover:text-[#003DA5]' : 'text-white hover:text-[#CE1126]'
             }`}
           >
             Normativa
-          </Link>
+          </a>
         </nav>
 
         {/* INTERACCIONES Y ACCESIBILIDAD (Buscador adaptativo y CTA de Consultas) */}
@@ -94,9 +97,8 @@ const Header = () => {
             <Search className={`w-5 h-5 transition-colors duration-300 ${scrolled ? 'text-[#003DA5]' : 'text-white'}`} /> 
             Buscar
           </a>
-          
-          <a 
-            href="#" 
+          <Link 
+            to="/consultas" 
             className={`px-7 py-3 rounded-full font-body font-bold text-lg tracking-wide transition-all duration-300 shadow-sm ${
               scrolled 
                 ? 'bg-[#003DA5] text-white hover:bg-[#002868] hover:shadow-md' 
@@ -104,7 +106,7 @@ const Header = () => {
             }`}
           >
             Consultas Civiles
-          </a>
+          </Link>
         </div>
 
         {/* BOTÓN MENÚ MÓVIL CON ADAPTACIÓN DE COLOR */}

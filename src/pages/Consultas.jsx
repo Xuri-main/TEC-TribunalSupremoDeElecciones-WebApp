@@ -1,28 +1,24 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, CreditCard, User, ChevronRight, AlertCircle, Loader2, X } from 'lucide-react';
+import { Search, CreditCard, User, X, ChevronRight, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-// ─── Base de datos simulada ──────────────────────────────
-// El TSE no tiene API pública que tenga habilitado para búsqueda por nombre (al menos de lo que buscamos).
-// Para el proyecto Emilio y yo (Esteban) usamos un padrón simulado con nombres reales y datos que podrían ser reales.
+// ─── BASE DE DATOS SIMULADA (De Esteban) ──────────────────────────────
 const PADRON_MOCK = [
-  { cedula: '108780000', nombre: 'CARLOS ALVARADO QUESADA', tipo: 'Física Nacional', provincia: 'San José', canton: 'Montes de Oca' },
-  { cedula: '109900000', nombre: 'LAURA CHINCHILLA MIRANDA', tipo: 'Física Nacional', provincia: 'San José', canton: 'San José' },
-  { cedula: '106120000', nombre: 'OSCAR ARIAS SANCHEZ', tipo: 'Física Nacional', provincia: 'Heredia', canton: 'Heredia' },
-  { cedula: '113200000', nombre: 'ANDREA MORA SANCHEZ', tipo: 'Física Nacional', provincia: 'Cartago', canton: 'Cartago' },
-  { cedula: '205430000', nombre: 'JOSE RODRIGUEZ MORA', tipo: 'Física Nacional', provincia: 'Alajuela', canton: 'Alajuela' },
-  { cedula: '304120000', nombre: 'MARIA GONZALEZ JIMENEZ', tipo: 'Física Nacional', provincia: 'Cartago', canton: 'Turrialba' },
-  { cedula: '401560000', nombre: 'JUAN VARGAS VARGAS', tipo: 'Física Nacional', provincia: 'Heredia', canton: 'San Isidro' },
-  { cedula: '502340000', nombre: 'ANA LOPEZ LOPEZ', tipo: 'Física Nacional', provincia: 'Guanacaste', canton: 'Liberia' },
-  { cedula: '601890000', nombre: 'PEDRO JIMENEZ ROJAS', tipo: 'Física Nacional', provincia: 'Puntarenas', canton: 'Puntarenas' },
-  { cedula: '701230000', nombre: 'SOFIA HERRERA CASTRO', tipo: 'Física Nacional', provincia: 'Limón', canton: 'Limón' },
+  { cedula: '1-0878-0000', nombre: 'CARLOS ALVARADO QUESADA', tipo: 'Física Nacional', provincia: 'San José', canton: 'Montes de Oca' },
+  { cedula: '1-0990-0000', nombre: 'LAURA CHINCHILLA MIRANDA', tipo: 'Física Nacional', provincia: 'San José', canton: 'San José' },
+  { cedula: '1-0612-0000', nombre: 'OSCAR ARIAS SANCHEZ', tipo: 'Física Nacional', provincia: 'Heredia', canton: 'Heredia' },
+  { cedula: '1-1320-0000', nombre: 'ANDREA MORA SANCHEZ', tipo: 'Física Nacional', provincia: 'Cartago', canton: 'Cartago' },
+  { cedula: '2-0543-0000', nombre: 'JOSE RODRIGUEZ MORA', tipo: 'Física Nacional', provincia: 'Alajuela', canton: 'Alajuela' },
+  { cedula: '3-0412-0000', nombre: 'MARIA GONZALEZ JIMENEZ', tipo: 'Física Nacional', provincia: 'Cartago', canton: 'Turrialba' },
+  { cedula: '4-0156-0000', nombre: 'JUAN VARGAS VARGAS', tipo: 'Física Nacional', provincia: 'Heredia', canton: 'San Isidro' },
+  { cedula: '5-0234-0000', nombre: 'ANA LOPEZ LOPEZ', tipo: 'Física Nacional', provincia: 'Guanacaste', canton: 'Liberia' },
+  { cedula: '6-0189-0000', nombre: 'PEDRO JIMENEZ ROJAS', tipo: 'Física Nacional', provincia: 'Puntarenas', canton: 'Puntarenas' },
+  { cedula: '7-0123-0000', nombre: 'SOFIA HERRERA CASTRO', tipo: 'Física Nacional', provincia: 'Limón', canton: 'Limón' },
 ];
 
-// ─── API: Búsqueda por cédula ─────────────────────────────────────────────────
+// ─── LÓGICA DE BÚSQUEDA (De Esteban) ──────────────────────────────────
 async function buscarPorCedula(cedulaRaw) {
-  // Esto es para eliminar los guiones si es que el usuario pone la cedula con guiones
   const cedula = cedulaRaw.replace(/-/g, '').replace(/\s/g, '').trim();
-
   const res = await fetch(`https://api.hacienda.go.cr/fe/ae?identificacion=${cedula}`);
   if (!res.ok) throw new Error('No encontrado');
   const data = await res.json();
@@ -33,16 +29,12 @@ async function buscarPorCedula(cedulaRaw) {
     nombre: data.nombre ?? '—',
     tipo: data.tipoIdentificacion ?? 'Física Nacional',
     situacion: data.situacion?.moroso ? 'Moroso' : 'Al día',
+    provincia: 'No disponible en API', 
   };
 }
 
-// ─── Búsqueda por nombre (usando el banco de nombres que está arriba) ──────────────────────────────
-// Normaliza texto: elimina tildes y convierte a mayúsculas para comparar
 function normalizar(texto) {
-  return texto
-    .toUpperCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+  return texto.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 function buscarPorNombre(nombre, apellido1, apellido2) {
@@ -62,349 +54,422 @@ function buscarPorNombre(nombre, apellido1, apellido2) {
   return resultados;
 }
 
-// ─── Componente: Tab button ───────────────────────────────────────────────────
-function TabButton({ active, onClick, icon: Icon, label }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`relative flex items-center gap-2 px-6 py-3 font-bold text-sm uppercase tracking-widest transition-all rounded-t-xl
-        ${active
-          ? 'bg-[#003DA5] text-white shadow-lg'
-          : 'bg-white/60 text-[#003DA5] hover:bg-white/90'}`}
-    >
-      <Icon size={16} strokeWidth={2.5} />
-      {label}
-      {active && (
-        <motion.div
-          layoutId="tab-indicator"
-          className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#CE1126]"
-        />
-      )}
-    </button>
-  );
-}
-
-// ─── Componente: Tarjeta de resultado único (cédula) ─────────────────────────
-function ResultCard({ result, onClose }) {
-  const fields = [
-    { label: 'Número de cédula', value: result.cedula },
-    { label: 'Nombre completo', value: result.nombre },
-    { label: 'Tipo de identificación', value: result.tipo },
-    { label: 'Estado tributario', value: result.situacion },
-  ];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 16 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-      className="mt-8 bg-white rounded-2xl shadow-2xl border border-[#D0D0D0] overflow-hidden"
-    >
-      <div className="bg-[#003DA5] px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="bg-[#CE1126] rounded-full p-2">
-            <User size={18} className="text-white" />
-          </div>
-          <div>
-            <p className="text-white/70 text-xs uppercase tracking-widest font-semibold">Resultado de consulta</p>
-            <p className="text-white font-extrabold text-lg leading-tight">{result.nombre}</p>
-          </div>
-        </div>
-        <button onClick={onClose} className="text-white/60 hover:text-white transition-colors">
-          <X size={20} />
-        </button>
-      </div>
-      <div className="h-1 bg-[#CE1126]" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 divide-y sm:divide-y-0 sm:divide-x divide-[#E8E8E8]">
-        {fields.map(({ label, value }, i) => (
-          <div key={i} className="px-6 py-5">
-            <p className="text-xs text-[#003DA5] font-bold uppercase tracking-widest mb-1">{label}</p>
-            <p className="text-[#1A1A1A] font-semibold text-base">{value}</p>
-          </div>
-        ))}
-      </div>
-      <div className="bg-[#E8E8E8] px-6 py-3 flex items-center gap-2">
-        <AlertCircle size={14} className="text-[#003DA5]" />
-        <p className="text-xs text-[#1A1A1A]/60">
-          Datos obtenidos del registro público del TSE. Consulta realizada el{' '}
-          {new Date().toLocaleDateString('es-CR', { day: '2-digit', month: 'long', year: 'numeric' })}.
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Componente: Lista de resultados múltiples (nombre) ───────────────────────
-function MultiResultList({ results, onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 16 }}
-      className="mt-8 space-y-4"
-    >
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-[#003DA5] font-bold text-sm uppercase tracking-widest">
-          {results.length} resultado{results.length !== 1 ? 's' : ''} encontrado{results.length !== 1 ? 's' : ''}
-        </p>
-        <button onClick={onClose} className="text-[#CE1126] hover:underline text-xs font-semibold flex items-center gap-1">
-          <X size={14} /> Limpiar
-        </button>
-      </div>
-      {results.map((r, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, x: -12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.06 }}
-          className="bg-white rounded-xl border border-[#D0D0D0] shadow px-6 py-4 flex items-center justify-between group hover:border-[#003DA5] transition-all"
-        >
-          <div>
-            <p className="font-extrabold text-[#1A1A1A]">{r.nombre}</p>
-            <p className="text-xs text-[#003DA5] mt-0.5">
-              Cédula: {r.cedula} · {r.provincia}, {r.canton}
-            </p>
-          </div>
-          <ChevronRight size={18} className="text-[#D0D0D0] group-hover:text-[#003DA5] transition-colors" />
-        </motion.div>
-      ))}
-      <div className="flex items-center gap-2 pt-2">
-        <AlertCircle size={14} className="text-[#003DA5]" />
-        <p className="text-xs text-[#1A1A1A]/50">
-          Datos del padrón electoral del TSE. Consulta realizada el{' '}
-          {new Date().toLocaleDateString('es-CR', { day: '2-digit', month: 'long', year: 'numeric' })}.
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Página principal ─────────────────────────────────────────────────────────
+// ─── COMPONENTE PRINCIPAL ──────────────────────────────────────────────
 export default function Consultas() {
-  const [tab, setTab] = useState('cedula');
-  const [cedula, setCedula] = useState('');
-  const [nombre, setNombre] = useState('');
+  const [activeTab, setActiveTab] = useState('cedula');
+  const [cedulaInput, setCedulaInput] = useState('');
+  
+  const [nombreInput, setNombreInput] = useState('');
   const [apellido1, setApellido1] = useState('');
   const [apellido2, setApellido2] = useState('');
+  
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Guardamos el resultado en lugar del resultType estático de Figma
   const [result, setResult] = useState(null);
   const [results, setResults] = useState(null);
-  const [error, setError] = useState(null);
 
-  function clearResults() {
+  const clearResults = () => {
     setResult(null);
     setResults(null);
     setError(null);
-  }
+  };
 
-  function handleTabChange(newTab) {
-    setTab(newTab);
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
     clearResults();
-    setCedula('');
-    setNombre(''); setApellido1(''); setApellido2('');
-  }
+    setCedulaInput('');
+    setNombreInput('');
+    setApellido1('');
+    setApellido2('');
+  };
 
-  async function handleSearchCedula(e) {
+  const handleSearchCedula = async (e) => {
     e.preventDefault();
-    if (!cedula.trim()) return;
+    if (!cedulaInput.trim()) return;
     clearResults();
     setLoading(true);
     try {
-      const data = await buscarPorCedula(cedula);
+      const data = await buscarPorCedula(cedulaInput);
       setResult(data);
     } catch {
-      setError('No se encontraron resultados para esa cédula. Verificá el número e intentá de nuevo.');
+      // Fallback temporal buscando en el MOCK si la API de Hacienda falla o no es de hacienda
+      const mockResult = PADRON_MOCK.find(p => p.cedula.replace(/-/g, '') === cedulaInput.replace(/-/g, ''));
+      if(mockResult) {
+        setResult({ ...mockResult, situacion: 'Al día' });
+      } else {
+        setError('No se encontraron resultados para esa cédula. Verifique el número e intente de nuevo.');
+      }
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  function handleSearchNombre(e) {
+  const handleSearchNombre = (e) => {
     e.preventDefault();
-    if (!nombre.trim() || !apellido1.trim()) return;
+    if (!nombreInput.trim() || !apellido1.trim()) return;
     clearResults();
     setLoading(true);
     try {
-      const data = buscarPorNombre(nombre, apellido1, apellido2);
-      setResults(data);
+      // Pequeño timeout simulado para efecto de búsqueda UX
+      setTimeout(() => {
+        const data = buscarPorNombre(nombreInput, apellido1, apellido2);
+        setResults(data);
+        setLoading(false);
+      }, 600);
     } catch {
-      setError('No se encontraron resultados. Verificá los datos e intentá de nuevo.');
-    } finally {
+      setError('No se encontraron resultados. Verifique los datos e intente de nuevo.');
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-[#E8E8E8] font-jakarta pb-20">
+    <div className="w-full min-h-screen bg-[#F4F6F9] pb-24">
+      
+      {/* ================= HERO SECTION (Estilo Figma) ================= */}
+      <section className="relative bg-[#0A1128] pb-32 md:pb-40 overflow-hidden pt-24">
+        {/* Luces volumétricas */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#003DA5]/20 rounded-full blur-[100px]"></div>
+          <div className="absolute bottom-0 left-1/3 w-[600px] h-[600px] bg-[#CE1126]/10 rounded-full blur-[120px]"></div>
+        </div>
 
-      {/* Hero azul */}
-      <div className="bg-[#003DA5] pt-10 pb-16 px-6 relative overflow-hidden">
-        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute top-8 -right-8 w-40 h-40 rounded-full bg-[#CE1126]/20 pointer-events-none" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-3xl mx-auto relative z-10"
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <div className="h-[3px] w-8 bg-[#CE1126] rounded-full" />
-            <span className="text-white/60 text-xs uppercase tracking-[0.25em] font-semibold">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 pt-16 pb-8 text-center md:text-left">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-center md:justify-start gap-3 mb-6"
+          >
+            <div className="h-1 w-12 bg-[#CE1126]"></div>
+            <span className="font-body font-semibold text-white/90 text-sm tracking-wide uppercase">
               Tribunal Supremo de Elecciones
             </span>
-          </div>
-          <h1 className="text-white text-3xl sm:text-4xl font-extrabold leading-tight mb-2">
+          </motion.div>
+
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="font-title font-extrabold text-5xl md:text-7xl text-white mb-6 tracking-tight"
+          >
             Consultas Civiles
-          </h1>
-          <p className="text-white/70 text-sm sm:text-base max-w-xl">
-            Consultá información del padrón electoral y registro civil de Costa Rica de forma rápida y segura.
-          </p>
-        </motion.div>
-      </div>
+          </motion.h1>
 
-      {/* Tarjeta del formulario */}
-      <div className="max-w-3xl mx-auto px-4 -mt-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, type: 'spring', stiffness: 260, damping: 24 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-white overflow-hidden"
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="font-body text-lg md:text-xl text-white/80 max-w-3xl mx-auto md:mx-0 leading-relaxed"
+          >
+            Consulte información del padrón electoral y registro civil de Costa Rica de forma rápida, segura y transparente.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* ================= TARJETA FLOTANTE (Overlapping) ================= */}
+      <div className="relative -mt-24 md:-mt-32 px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
+          className="max-w-5xl mx-auto"
         >
-          {/* Tabs */}
-          <div className="flex gap-1 px-4 pt-4 bg-[#E8E8E8]/60 border-b border-[#D0D0D0]">
-            <TabButton active={tab === 'cedula'} onClick={() => handleTabChange('cedula')} icon={CreditCard} label="Por cédula" />
-            <TabButton active={tab === 'nombre'} onClick={() => handleTabChange('nombre')} icon={User} label="Por nombre" />
-          </div>
+          <div className="bg-white rounded-[32px] shadow-2xl shadow-[#0A1128]/10 overflow-hidden border border-gray-100">
+            
+            {/* TABS HEADER */}
+            <div className="flex border-b border-gray-100 bg-gray-50/50">
+              <button
+                onClick={() => handleTabChange('cedula')}
+                className={`flex-1 py-6 px-4 md:px-8 font-title font-bold text-base md:text-lg transition-all relative ${
+                  activeTab === 'cedula' ? 'text-[#003DA5]' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <span className="flex items-center justify-center gap-2"><CreditCard size={20} /> POR CÉDULA</span>
+                {activeTab === 'cedula' && <motion.div layoutId="border" className="absolute bottom-0 left-0 w-full h-1 bg-[#CE1126]" />}
+              </button>
+              
+              <button
+                onClick={() => handleTabChange('nombre')}
+                className={`flex-1 py-6 px-4 md:px-8 font-title font-bold text-base md:text-lg transition-all relative ${
+                  activeTab === 'nombre' ? 'text-[#003DA5]' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <span className="flex items-center justify-center gap-2"><User size={20} /> POR NOMBRE</span>
+                {activeTab === 'nombre' && <motion.div layoutId="border" className="absolute bottom-0 left-0 w-full h-1 bg-[#CE1126]" />}
+              </button>
+            </div>
 
-          <div className="p-6 sm:p-8">
-            <AnimatePresence mode="wait">
-
-              {/* Formulario cédula */}
-              {tab === 'cedula' && (
-                <motion.form
-                  key="cedula-form"
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 16 }}
-                  transition={{ duration: 0.2 }}
-                  onSubmit={handleSearchCedula}
-                  className="space-y-5"
-                >
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest text-[#003DA5] mb-2">
-                      Número de cédula
-                    </label>
-                    <div className="relative">
-                      <CreditCard size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#003DA5]/50" />
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Ej: 1-0000-0000 o 10000000"
-                        value={cedula}
-                        onChange={e => { clearResults(); setCedula(e.target.value.replace(/[^\d-]/g, '')); }}
-                        maxLength={12}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-[#D0D0D0] focus:border-[#003DA5] focus:outline-none text-[#1A1A1A] font-semibold text-base transition-all bg-white placeholder:text-[#1A1A1A]/30"
-                      />
-                    </div>
-                    <p className="mt-1.5 text-xs text-[#1A1A1A]/40">
-                      Podés escribir con o sin guiones (1-2345-6789 o 123456789).
-                    </p>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.02, backgroundColor: '#CE1126' }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={loading || !cedula.trim()}
-                    className="w-full flex items-center justify-center gap-3 bg-[#003DA5] text-white py-3.5 rounded-xl font-extrabold text-sm uppercase tracking-widest shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            <div className="p-8 md:p-12">
+              <AnimatePresence mode="wait">
+                
+                {/* ─── FORMULARIO CÉDULA ─── */}
+                {activeTab === 'cedula' && (
+                  <motion.form
+                    key="form-cedula"
+                    initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}
+                    onSubmit={handleSearchCedula}
+                    className="space-y-6"
                   >
-                    {loading ? <><Loader2 size={18} className="animate-spin" /> Consultando...</> : <><Search size={18} /> Consultar</>}
-                  </motion.button>
-                </motion.form>
-              )}
+                    <div>
+                      <label className="block font-title font-bold text-sm uppercase text-[#003DA5] mb-3 tracking-widest">
+                        Número de Cédula
+                      </label>
+                      <div className="relative">
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2">
+                          <CreditCard className="w-6 h-6 text-[#003DA5]/40" />
+                        </div>
+                        <input
+                          type="text"
+                          value={cedulaInput}
+                          onChange={(e) => setCedulaInput(e.target.value.replace(/[^\d-]/g, ''))}
+                          placeholder="Ej: 1-0878-0000 o 108780000"
+                          maxLength={12}
+                          className="w-full pl-16 pr-6 py-5 border-2 border-gray-200 rounded-2xl font-body text-lg text-[#1A1A1A] focus:border-[#003DA5] focus:ring-4 focus:ring-[#003DA5]/10 outline-none transition-all placeholder:text-gray-300 font-semibold"
+                        />
+                      </div>
+                      <p className="mt-3 text-sm font-body text-gray-500">
+                        Puede ingresar el formato numérico con o sin guiones.
+                      </p>
+                    </div>
 
-              {/* Formulario nombre */}
-              {tab === 'nombre' && (
-                <motion.form
-                  key="nombre-form"
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16 }}
-                  transition={{ duration: 0.2 }}
-                  onSubmit={handleSearchNombre}
-                  className="space-y-5"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      { label: 'Nombre(s)', placeholder: 'Ej: María', value: nombre, setter: setNombre, required: true },
-                      { label: 'Primer apellido', placeholder: 'Ej: González', value: apellido1, setter: setApellido1, required: true },
-                      { label: 'Segundo apellido', placeholder: 'Ej: Mora', value: apellido2, setter: setApellido2, required: false },
-                    ].map(({ label, placeholder, value, setter, required }) => (
-                      <div key={label}>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-[#003DA5] mb-2">
-                          {label}{required && <span className="text-[#CE1126] ml-0.5">*</span>}
+                    <button
+                      type="submit"
+                      disabled={loading || !cedulaInput.trim()}
+                      className="w-full bg-[#003DA5] text-white font-title font-bold text-lg py-5 rounded-2xl hover:bg-[#002868] transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                      {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Search className="w-6 h-6 group-hover:scale-110 transition-transform" />}
+                      CONSULTAR PADRÓN
+                    </button>
+                  </motion.form>
+                )}
+
+                {/* ─── FORMULARIO NOMBRE ─── */}
+                {activeTab === 'nombre' && (
+                  <motion.form
+                    key="form-nombre"
+                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}
+                    onSubmit={handleSearchNombre}
+                    className="space-y-6"
+                  >
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block font-title font-bold text-sm uppercase text-[#003DA5] mb-3 tracking-widest">
+                          Primer Apellido <span className="text-[#CE1126]">*</span>
                         </label>
                         <input
                           type="text"
-                          placeholder={placeholder}
-                          value={value}
-                          onChange={e => { clearResults(); setter(e.target.value); }}
-                          className="w-full px-4 py-3.5 rounded-xl border-2 border-[#D0D0D0] focus:border-[#003DA5] focus:outline-none text-[#1A1A1A] font-semibold text-base transition-all bg-white placeholder:text-[#1A1A1A]/30"
+                          value={apellido1}
+                          onChange={(e) => setApellido1(e.target.value)}
+                          placeholder="Ej: González"
+                          className="w-full px-6 py-5 border-2 border-gray-200 rounded-2xl font-body text-lg text-[#1A1A1A] font-semibold focus:border-[#003DA5] focus:ring-4 focus:ring-[#003DA5]/10 outline-none transition-all placeholder:text-gray-300"
                         />
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-[#1A1A1A]/40">
-                    Los campos con <span className="text-[#CE1126] font-bold">*</span> son obligatorios. La búsqueda no distingue mayúsculas ni tildes.
-                  </p>
-                  <motion.button
-                    whileHover={{ scale: 1.02, backgroundColor: '#CE1126' }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={loading || !nombre.trim() || !apellido1.trim()}
-                    className="w-full flex items-center justify-center gap-3 bg-[#003DA5] text-white py-3.5 rounded-xl font-extrabold text-sm uppercase tracking-widest shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      <div>
+                        <label className="block font-title font-bold text-sm uppercase text-[#003DA5] mb-3 tracking-widest">
+                          Segundo Apellido
+                        </label>
+                        <input
+                          type="text"
+                          value={apellido2}
+                          onChange={(e) => setApellido2(e.target.value)}
+                          placeholder="Ej: Mora (Opcional)"
+                          className="w-full px-6 py-5 border-2 border-gray-200 rounded-2xl font-body text-lg text-[#1A1A1A] font-semibold focus:border-[#003DA5] focus:ring-4 focus:ring-[#003DA5]/10 outline-none transition-all placeholder:text-gray-300"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-title font-bold text-sm uppercase text-[#003DA5] mb-3 tracking-widest">
+                        Nombre(s) <span className="text-[#CE1126]">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={nombreInput}
+                        onChange={(e) => setNombreInput(e.target.value)}
+                        placeholder="Ej: María José"
+                        className="w-full px-6 py-5 border-2 border-gray-200 rounded-2xl font-body text-lg text-[#1A1A1A] font-semibold focus:border-[#003DA5] focus:ring-4 focus:ring-[#003DA5]/10 outline-none transition-all placeholder:text-gray-300"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading || !nombreInput.trim() || !apellido1.trim()}
+                      className="w-full bg-[#003DA5] text-white font-title font-bold text-lg py-5 rounded-2xl hover:bg-[#002868] transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                      {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Search className="w-6 h-6 group-hover:scale-110 transition-transform" />}
+                      BUSCAR CIUDADANO
+                    </button>
+                  </motion.form>
+                )}
+              </AnimatePresence>
+
+              {/* ─── MENSAJE DE ERROR ─── */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: 'auto', marginTop: 32 }} exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    className="overflow-hidden"
                   >
-                    {loading ? <><Loader2 size={18} className="animate-spin" /> Buscando...</> : <><Search size={18} /> Buscar</>}
-                  </motion.button>
-                </motion.form>
-              )}
-            </AnimatePresence>
+                    <div className="bg-[#CE1126]/10 border border-[#CE1126]/20 rounded-2xl p-5 flex items-start gap-4">
+                      <AlertCircle className="w-6 h-6 text-[#CE1126] flex-shrink-0 mt-0.5" />
+                      <p className="font-body font-semibold text-[#CE1126]">{error}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            {/* Error */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="mt-6 flex items-start gap-3 bg-[#CE1126]/10 border border-[#CE1126]/30 rounded-xl px-5 py-4"
-                >
-                  <AlertCircle size={18} className="text-[#CE1126] shrink-0 mt-0.5" />
-                  <p className="text-[#CE1126] text-sm font-semibold">{error}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              {/* ─── RESULTADO ÚNICO (Diseño Figma Premium) ─── */}
+              <AnimatePresence>
+                {result && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                    className="mt-12 pt-12 border-t border-gray-100"
+                  >
+                    <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50">
+                      
+                      {/* Cabecera del Resultado */}
+                      <div className="bg-[#003DA5] px-6 md:px-10 py-8 flex items-center gap-6 relative overflow-hidden">
+                        {/* Glow decorativo interno */}
+                        <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 blur-3xl rounded-full"></div>
+                        
+                        <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center flex-shrink-0 border border-white/20">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <div className="relative z-10">
+                          <p className="font-title font-bold text-[#FFD700] text-xs uppercase tracking-widest mb-1">
+                            Ciudadano Encontrado
+                          </p>
+                          <h3 className="font-title font-bold text-2xl md:text-3xl text-white">
+                            {result.nombre}
+                          </h3>
+                        </div>
+                      </div>
 
-            {/* Resultados */}
-            <AnimatePresence>
-              {result && <ResultCard result={result} onClose={clearResults} />}
-              {results && <MultiResultList results={results} onClose={clearResults} />}
-            </AnimatePresence>
+                      {/* Grid de Datos */}
+                      <div className="p-6 md:p-10 grid md:grid-cols-2 gap-8 bg-[#F8FAFC]">
+                        <div className="flex items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                          <div className="w-12 h-12 rounded-xl bg-[#003DA5]/10 flex items-center justify-center flex-shrink-0">
+                            <CreditCard className="w-6 h-6 text-[#003DA5]" />
+                          </div>
+                          <div>
+                            <p className="font-title font-bold text-xs uppercase text-gray-400 tracking-widest mb-1">Número de cédula</p>
+                            <p className="font-body font-bold text-xl text-[#1A1A1A]">{result.cedula}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                          <div className="w-12 h-12 rounded-xl bg-[#003DA5]/10 flex items-center justify-center flex-shrink-0">
+                            <User className="w-6 h-6 text-[#003DA5]" />
+                          </div>
+                          <div>
+                            <p className="font-title font-bold text-xs uppercase text-gray-400 tracking-widest mb-1">Tipo Identificación</p>
+                            <p className="font-body font-bold text-xl text-[#1A1A1A]">{result.tipo}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${result.situacion === 'Al día' ? 'bg-green-100' : 'bg-orange-100'}`}>
+                            {result.situacion === 'Al día' ? <CheckCircle className="w-6 h-6 text-green-600" /> : <AlertCircle className="w-6 h-6 text-orange-600" />}
+                          </div>
+                          <div>
+                            <p className="font-title font-bold text-xs uppercase text-gray-400 tracking-widest mb-1">Estado Tributario</p>
+                            <p className={`font-body font-bold text-xl ${result.situacion === 'Al día' ? 'text-green-600' : 'text-orange-600'}`}>{result.situacion}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                          <div className="w-12 h-12 rounded-xl bg-[#003DA5]/10 flex items-center justify-center flex-shrink-0">
+                            <AlertCircle className="w-6 h-6 text-[#003DA5]" />
+                          </div>
+                          <div>
+                            <p className="font-title font-bold text-xs uppercase text-gray-400 tracking-widest mb-1">Inscripción Electoral</p>
+                            <p className="font-body font-bold text-xl text-[#1A1A1A]">{result.provincia}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="px-6 md:px-10 pb-8 pt-4 bg-[#F8FAFC]">
+                        <button onClick={clearResults} className="w-full py-4 border-2 border-[#003DA5] rounded-2xl font-title font-bold text-[#003DA5] hover:bg-[#003DA5] hover:text-white transition-colors">
+                          LIMPIAR RESULTADO Y REALIZAR NUEVA CONSULTA
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* ─── MÚLTIPLES RESULTADOS (Lista) ─── */}
+              <AnimatePresence>
+                {results && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+                    className="mt-12 pt-12 border-t border-gray-100"
+                  >
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-[#003DA5]/10 rounded-xl flex items-center justify-center text-[#003DA5] font-title font-bold text-lg">
+                          {results.length}
+                        </div>
+                        <p className="font-title font-bold text-xl text-[#1A1A1A]">Resultados encontrados</p>
+                      </div>
+                      
+                      <button onClick={clearResults} className="flex items-center gap-2 px-5 py-3 rounded-xl font-title font-bold text-sm text-[#CE1126] bg-[#CE1126]/10 hover:bg-[#CE1126]/20 transition-colors">
+                        <X className="w-5 h-5" /> LIMPIAR
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {results.map((person, index) => (
+                        <motion.button
+                          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}
+                          key={index}
+                          // Aquí podrías añadir un onClick que simule buscar esa cédula específica
+                          onClick={() => { setCedulaInput(person.cedula); handleTabChange('cedula'); }} 
+                          className="w-full p-6 bg-white border-2 border-gray-100 rounded-2xl hover:border-[#003DA5] hover:shadow-lg transition-all group text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-title font-bold text-xl md:text-2xl text-[#1A1A1A] mb-3 group-hover:text-[#003DA5] transition-colors">
+                                {person.nombre}
+                              </h4>
+                              <div className="flex flex-wrap gap-6 font-body text-sm md:text-base text-gray-600">
+                                <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                                  <CreditCard size={16} className="text-gray-400" />
+                                  <span className="font-semibold text-gray-500 uppercase tracking-wide text-xs">Cédula:</span>
+                                  <span className="font-bold text-[#1A1A1A]">{person.cedula}</span>
+                                </span>
+                                <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                                  <User size={16} className="text-gray-400" />
+                                  <span className="font-semibold text-gray-500 uppercase tracking-wide text-xs">Lugar:</span>
+                                  <span className="font-bold text-[#1A1A1A]">{person.provincia}, {person.canton}</span>
+                                </span>
+                              </div>
+                            </div>
+                            <div className="w-12 h-12 rounded-full bg-gray-50 group-hover:bg-[#003DA5] flex items-center justify-center transition-colors flex-shrink-0 ml-4">
+                              <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
+                            </div>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+            </div>
           </div>
-        </motion.div>
+          
+          {/* Info Footer Legal */}
+          <div className="mt-8 text-center flex items-center justify-center gap-2">
+            <ShieldIcon />
+            <p className="font-body text-sm text-gray-500 font-medium">
+              Servicio interconectado oficial del TSE y Ministerio de Hacienda. Datos de carácter público.
+            </p>
+          </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-4 flex items-center gap-2 px-2"
-        >
-          <div className="h-[2px] w-4 bg-[#CE1126] rounded-full" />
-          <p className="text-xs text-[#1A1A1A]/50 font-medium">
-            Servicio oficial del Tribunal Supremo de Elecciones de Costa Rica · Los datos son de carácter público.
-          </p>
         </motion.div>
       </div>
     </div>
   );
 }
+
+// Icono decorativo para el footer legal
+const ShieldIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  </svg>
+);
