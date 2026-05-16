@@ -1,59 +1,139 @@
-import React from 'react';
-import { Menu, MapPin, Newspaper, Home } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { Search, Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-export default function Header({ onOpenMenu }) {
+const Header = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Detector de scroll avanzado con umbral mínimo para máxima responsividad
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-[100] w-full px-6 py-4 font-jakarta">
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="max-w-7xl mx-auto bg-[#003DA5]/90 backdrop-blur-md rounded-2xl border-b-4 border-[#CE1126] shadow-xl flex justify-between items-center px-6 py-3"
-      >
+    <header 
+      className={`w-full h-20 md:h-24 fixed top-0 left-0 z-50 transition-all duration-500 ease-in-out ${
+        scrolled 
+          ? 'bg-white shadow-md border-b border-gray-200' 
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-[1650px] mx-auto px-6 md:px-12 lg:px-16 h-full flex items-center justify-between">
         
-        {/* IZQUIERDA: Logo del TSE */}
-        <div className="flex items-center">
+        {/* LOGO (Maximizado en escala sin alterar el alto del header) */}
+        <a href="#" className="flex items-center h-full z-50" aria-label="TSE Inicio">
           <img 
             src="/LogoTSE.png" 
             alt="Logo TSE" 
-            className="h-auto w-[160px] object-contain transition-all" 
+            className="h-14 w-auto md:h-16 object-contain transition-transform duration-300 hover:scale-105"
+            onError={(e) => {
+              // Fallback por si el logo no resuelve la ruta relativa en alguna vista
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'block';
+            }}
           />
-        </div>
+          {/* Escudo geométrico alternativo oculto en carga correcta */}
+          <svg className="w-10 h-10 text-[#003DA5] hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </a>
 
-        {/* DERECHA: Navegación */}
-        <div className="hidden md:flex items-center gap-8">
-          <nav className="flex items-center gap-6 text-white/90 font-semibold text-[13px] uppercase tracking-wider">
-            <a href="/" className="hover:text-[#FFD700] flex items-center gap-2 transition-all hover:translate-y-[-1px]">
-              <Home size={16} strokeWidth={2.5} /> Servicios
-            </a>
-            <a href="/noticias" className="hover:text-[#FFD700] flex items-center gap-2 transition-all hover:translate-y-[-1px]">
-              <Newspaper size={16} strokeWidth={2.5} /> Noticias
-            </a>
-            <a href="/contacto" className="hover:text-[#FFD700] flex items-center gap-2 transition-all hover:translate-y-[-1px]">
-              <MapPin size={16} strokeWidth={2.5} /> Sedes y Contacto
-            </a>
-          </nav>
-
-          <div className="h-6 w-[1px] bg-white/20"></div>
-
-          <motion.button 
-            whileHover={{ scale: 1.02, backgroundColor: '#FFD700', color: '#003DA5' }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onOpenMenu}
-            className="flex items-center gap-3 bg-white text-[#003DA5] px-6 py-2.5 rounded-xl font-extrabold transition-all shadow-lg group"
+        {/* Navegación Desktop optimizada con React Router */}
+        <nav className="hidden lg:flex items-center gap-10">
+          <Link 
+            to="/sobre-el-tse" 
+            className={`link-tse py-1 text-xl tracking-tight transition-colors duration-300 ${
+              scrolled ? 'text-[#1A1A1A] hover:text-[#003DA5]' : 'text-white hover:text-[#CE1126]'
+            }`}
           >
-            <span className="text-[11px] uppercase tracking-[0.2em]">Menú</span>
-            <Menu size={22} />
-          </motion.button>
+            Sobre el TSE
+          </Link>
+          <Link 
+            to="/" 
+            className={`link-tse py-1 text-xl tracking-tight transition-colors duration-300 ${
+              scrolled ? 'text-[#1A1A1A] hover:text-[#003DA5]' : 'text-white hover:text-[#CE1126]'
+            }`}
+          >
+            Registro Civil
+          </Link>
+          <Link 
+            to="/" 
+            className={`link-tse py-1 text-xl tracking-tight transition-colors duration-300 ${
+              scrolled ? 'text-[#1A1A1A] hover:text-[#003DA5]' : 'text-white hover:text-[#CE1126]'
+            }`}
+          >
+            Elecciones
+          </Link>
+          <Link 
+            to="/" 
+            className={`link-tse py-1 text-xl tracking-tight transition-colors duration-300 ${
+              scrolled ? 'text-[#1A1A1A] hover:text-[#003DA5]' : 'text-white hover:text-[#CE1126]'
+            }`}
+          >
+            Normativa
+          </Link>
+        </nav>
+
+        {/* INTERACCIONES Y ACCESIBILIDAD (Buscador adaptativo y CTA de Consultas) */}
+        <div className="hidden lg:flex items-center gap-8">
+          <a 
+            href="#" 
+            className={`font-body font-semibold text-xl tracking-tight flex items-center gap-2 transition-colors duration-300 ${
+              scrolled ? 'text-gray-700 hover:text-[#003DA5]' : 'text-gray-200 hover:text-white'
+            }`}
+          >
+            <Search className={`w-5 h-5 transition-colors duration-300 ${scrolled ? 'text-[#003DA5]' : 'text-white'}`} /> 
+            Buscar
+          </a>
+          
+          <a 
+            href="#" 
+            className={`px-7 py-3 rounded-full font-body font-bold text-lg tracking-wide transition-all duration-300 shadow-sm ${
+              scrolled 
+                ? 'bg-[#003DA5] text-white hover:bg-[#002868] hover:shadow-md' 
+                : 'bg-white text-[#003DA5] hover:bg-[#CE1126] hover:text-white shadow-blue-950/20'
+            }`}
+          >
+            Consultas Civiles
+          </a>
         </div>
 
-        {/* Móvil */}
-        <div className="md:hidden">
-          <button onClick={onOpenMenu} className="text-white">
-            <Menu size={32} />
-          </button>
+        {/* BOTÓN MENÚ MÓVIL CON ADAPTACIÓN DE COLOR */}
+        <button 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+          className={`lg:hidden z-50 p-2 transition-colors duration-300 ${
+            scrolled || mobileMenuOpen ? 'text-[#1A1A1A]' : 'text-white'
+          }`}
+          aria-label="Abrir menú de navegación"
+        >
+          {mobileMenuOpen ? <X size={32} /> : <Menu size={32} />}
+        </button>
+      </div>
+
+      {/* MENÚ DESPLEGABLE MÓVIL EN PANTALLA COMPLETA */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 bg-white z-40 flex flex-col justify-center items-center gap-8 text-3xl font-title font-bold text-[#1A1A1A] animate-in fade-in duration-300">
+          <a href="#" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#003DA5] transition-colors">Sobre el TSE</a>
+          <a href="#" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#003DA5] transition-colors">Registro Civil</a>
+          <a href="#" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#003DA5] transition-colors">Elecciones</a>
+          <a href="#" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#003DA5] transition-colors">Normativa</a>
+          <div className="w-16 h-1 bg-[#CE1126] my-2"></div>
+          <a href="#" onClick={() => setMobileMenuOpen(false)} className="text-xl bg-[#003DA5] text-white px-8 py-4 rounded-full font-body shadow-lg">
+            Consultas Civiles
+          </a>
         </div>
-      </motion.div>
+      )}
     </header>
   );
-}
+};
+
+export default Header;

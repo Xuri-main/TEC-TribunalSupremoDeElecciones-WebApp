@@ -1,19 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@700&family=Public+Sans:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --tse-blue: #003DA5;
-  --tse-red: #CE1126;
-  --tse-gray-light: #E8E8E8;
-  --tse-gray-dark: #D0D0D0;
-  --tse-gold: #FFD700;
-  --tse-text: #1A1A1A;
+/* Efecto Adept adaptado a la formalidad del gobierno */
+.link-tse {
+  position: relative;
+  font-family: 'Public Sans', sans-serif;
+  font-weight: 600;
+  transition: color 0.2s ease;
 }
 
-body {
-  background-color: var(--tse-gray-light);
-  color: var(--tse-text);
-  font-family: 'Plus Jakarta Sans', sans-serif;
+.link-tse::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #CE1126; /* Rojo vibrante en el subrayado */
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+.link-tse:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Control absoluto del fondo oscuro para evitar pantallas en blanco */
+html, body {
+  background-color: #0A1128 !important; /* Azul Marino Profundo Gubernamental */
+  color: #003DA5;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
