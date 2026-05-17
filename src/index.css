@@ -4,7 +4,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Efecto Adept adaptado a la formalidad del gobierno */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background-color: #0A1128 !important;
+  color: #003DA5;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Public Sans', sans-serif;
+}
+
 .link-tse {
   position: relative;
   font-family: 'Public Sans', sans-serif;
@@ -20,7 +41,7 @@
   height: 2px;
   bottom: -4px;
   left: 0;
-  background-color: #CE1126; /* Rojo vibrante en el subrayado */
+  background-color: #CE1126;
   transform-origin: bottom right;
   transition: transform 0.25s ease-out;
 }
@@ -30,11 +51,160 @@
   transform-origin: bottom left;
 }
 
-/* Control absoluto del fondo oscuro para evitar pantallas en blanco */
-html, body {
-  background-color: #0A1128 !important; /* Azul Marino Profundo Gubernamental */
-  color: #003DA5;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+body.tse-high-contrast {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+body.tse-high-contrast header,
+body.tse-high-contrast footer,
+body.tse-high-contrast main,
+body.tse-high-contrast section,
+body.tse-high-contrast article,
+body.tse-high-contrast aside {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+body.tse-high-contrast div,
+body.tse-high-contrast nav {
+  border-color: #fff !important;
+}
+
+body.tse-high-contrast p,
+body.tse-high-contrast h1,
+body.tse-high-contrast h2,
+body.tse-high-contrast h3,
+body.tse-high-contrast h4,
+body.tse-high-contrast h5,
+body.tse-high-contrast h6,
+body.tse-high-contrast span,
+body.tse-high-contrast li {
+  color: #fff !important;
+}
+
+body.tse-high-contrast a,
+body.tse-high-contrast button {
+  color: #fff !important;
+}
+
+body.tse-high-contrast a:hover,
+body.tse-high-contrast button:hover {
+  background-color: #f6c400 !important;
+  color: #000 !important;
+}
+
+body.tse-high-contrast input,
+body.tse-high-contrast textarea,
+body.tse-high-contrast select {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 2px solid #f6c400 !important;
+}
+
+body.tse-high-contrast img {
+  filter: contrast(1.2);
+}
+
+body.tse-high-contrast *:focus-visible {
+  outline: 4px solid #f6c400 !important;
+  outline-offset: 4px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ============================= */
+/* MODO ALTO CONTRASTE MEJORADO */
+/* ============================= */
+
+body.tse-high-contrast {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Fondos generales de las páginas */
+body.tse-high-contrast main,
+body.tse-high-contrast main section,
+body.tse-high-contrast main [class*="bg-[#F1EEE8]"],
+body.tse-high-contrast main [class*="bg-[#E8ECEF]"],
+body.tse-high-contrast main [class*="bg-[#EDE7DC]"],
+body.tse-high-contrast main [class*="bg-[#111827]"] {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Tarjetas, bloques y contenedores importantes */
+body.tse-high-contrast main article,
+body.tse-high-contrast main a[class*="rounded"],
+body.tse-high-contrast main div[class*="rounded-[2rem]"],
+body.tse-high-contrast main [class*="bg-[#DFE4E8]"],
+body.tse-high-contrast main [class*="bg-[#D7DDE3]"],
+body.tse-high-contrast main [class*="bg-[#F6F1E8]"],
+body.tse-high-contrast main [class*="bg-[#1F2937]"],
+body.tse-high-contrast main [class*="bg-[#171A21]"] {
+  background-color: #050505 !important;
+  color: #fff !important;
+  border: 2px solid #f6c400 !important;
+  box-shadow: none !important;
+}
+
+/* Textos internos */
+body.tse-high-contrast main h1,
+body.tse-high-contrast main h2,
+body.tse-high-contrast main h3,
+body.tse-high-contrast main h4,
+body.tse-high-contrast main p,
+body.tse-high-contrast main span,
+body.tse-high-contrast main div {
+  color: #fff !important;
+}
+
+/* Íconos y cajas de íconos */
+body.tse-high-contrast main svg {
+  color: #f6c400 !important;
+  stroke: currentColor !important;
+}
+
+body.tse-high-contrast main [class*="bg-[#111418]"],
+body.tse-high-contrast main [class*="bg-[#15191F]"],
+body.tse-high-contrast main [class*="bg-[#F7F2EA]"] {
+  background-color: #f6c400 !important;
+  color: #000 !important;
+  border: 2px solid #fff !important;
+}
+
+/* Hover accesible: amarillo con texto negro */
+body.tse-high-contrast main a:hover,
+body.tse-high-contrast main button:hover {
+  background-color: #f6c400 !important;
+  color: #000 !important;
+  border-color: #fff !important;
+}
+
+body.tse-high-contrast main a:hover *,
+body.tse-high-contrast main button:hover *,
+body.tse-high-contrast main a:hover svg,
+body.tse-high-contrast main button:hover svg {
+  color: #000 !important;
+  stroke: currentColor !important;
+}
+
+/* Imágenes en alto contraste */
+body.tse-high-contrast main img {
+  filter: contrast(1.15) brightness(0.9);
+}
+
+/* Enfoque visible para teclado */
+body.tse-high-contrast *:focus-visible {
+  outline: 4px solid #f6c400 !important;
+  outline-offset: 4px !important;
 }

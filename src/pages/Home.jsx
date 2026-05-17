@@ -295,58 +295,6 @@ const HeroSection = () => {
 };
 
 // ==========================================
-// --- SERVICIOS MÁS VISITADOS ---
-// ==========================================
-const ServiciosVisitadosSection = () => (
-  <section className="w-full bg-[#EDE7DC] py-20 lg:py-24">
-    <div className="max-w-[1500px] mx-auto px-6 md:px-12 lg:px-16">
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
-        <div>
-          <p className="font-body text-[#CE1126] font-bold tracking-[0.25em] uppercase text-sm mb-3">
-            Accesos rápidos
-          </p>
-          <h2 className="font-title font-bold text-[#161A1D] text-4xl md:text-5xl tracking-tight">
-            Servicios más visitados
-          </h2>
-        </div>
-        <p className="font-body text-[#4B5563] text-lg max-w-2xl leading-relaxed">
-          Los trámites y consultas principales quedan visibles desde el inicio para que el usuario no tenga que buscarlos dentro del menú.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {serviciosVisitados.map((servicio) => {
-          const Icono = servicio.icono;
-
-          return (
-            <LinkSeguro
-              key={servicio.titulo}
-              href={servicio.href}
-              ariaLabel={`Ingresar a ${servicio.titulo}`}
-              className="group rounded-3xl bg-[#F7F2EA] border border-[#D8D0C4] p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 min-h-[190px]"
-            >
-              <div className="flex items-start justify-between gap-5 mb-7">
-                <div className="w-14 h-14 rounded-2xl bg-[#15191F] text-[#F7F2EA] flex items-center justify-center group-hover:bg-[#003DA5] transition-colors">
-                  <Icono className="w-7 h-7" />
-                </div>
-                <ExternalLink className="w-5 h-5 text-[#7A756E] group-hover:text-[#CE1126] transition-colors" />
-              </div>
-
-              <h3 className="font-title font-bold text-[#161A1D] text-2xl mb-3">
-                {servicio.titulo}
-              </h3>
-              <p className="font-body text-[#5F6670] leading-relaxed">
-                {servicio.descripcion}
-              </p>
-            </LinkSeguro>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-);
-
-// ==========================================
 // --- CUADRÍCULA PRINCIPAL TIPO TSE ---
 // ==========================================
 const CuadriculaPrincipalSection = () => (
@@ -354,13 +302,13 @@ const CuadriculaPrincipalSection = () => (
     <div className="max-w-[1500px] mx-auto px-6 md:px-12 lg:px-16">
       <div className="text-center max-w-4xl mx-auto mb-14">
         <p className="font-body text-[#003DA5] font-bold tracking-[0.25em] uppercase text-sm mb-3">
-          Menú principal
+          Áreas del Tribunal
         </p>
         <h2 className="font-title font-bold text-[#161A1D] text-4xl md:text-6xl tracking-tight leading-tight">
-          Encuentre la información del TSE por secciones
+          Información electoral y registral
         </h2>
         <p className="font-body text-[#555B64] text-lg md:text-xl mt-5 leading-relaxed">
-          Una cuadrícula de botones similar al sitio original, pero con más aire visual, mejor contraste y tarjetas más claras para navegar.
+          Consulte información institucional, servicios civiles, procesos electorales, normativa, formación democrática y publicaciones.
         </p>
       </div>
 
@@ -406,14 +354,14 @@ const RecursosInstitucionalesSection = () => (
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 mb-12 lg:items-end">
         <div className="lg:w-1/2">
           <p className="font-body text-[#CE1126] font-bold tracking-[0.25em] uppercase text-sm mb-3">
-            Información institucional
+            Transparencia y participación
           </p>
           <h2 className="font-title font-bold text-[#161A1D] text-4xl md:text-5xl tracking-tight leading-tight">
-            Recursos destacados para consulta ciudadana
+            Consulta pública e información especializada
           </h2>
         </div>
         <p className="lg:w-1/2 font-body text-[#555B64] text-lg leading-relaxed">
-          Estos módulos reemplazan las tarjetas rígidas del diseño anterior por bloques más compactos, con contenido explicativo y una llamada de acción visible.
+          Acceda a datos institucionales, publicaciones jurídicas y recursos sobre participación política.
         </p>
       </div>
 
@@ -562,13 +510,13 @@ const ContactoApoyoSection = () => (
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           <div className="lg:col-span-5">
             <p className="font-body text-[#F4B4BC] font-bold tracking-[0.25em] uppercase text-sm mb-3">
-              Apoyo al usuario
+              Atención ciudadana
             </p>
             <h2 className="font-title font-bold text-4xl md:text-5xl tracking-tight leading-tight mb-5">
-              Enlaces útiles y canales de consulta
+              Contactos, sedes y documentos de consulta
             </h2>
             <p className="font-body text-[#CBD5E1] text-lg leading-relaxed">
-              Un cierre más ordenado para que la persona pueda encontrar sedes, contactos, mapa del sitio y políticas sin depender solamente del pie de página.
+              Encuentre información de contacto, ubicación de sedes, mapa del sitio y políticas institucionales.
             </p>
           </div>
 
@@ -605,14 +553,13 @@ const ContactoApoyoSection = () => (
 // ==========================================
 const Home = () => {
   return (
-    <main className="w-full bg-[#F1EEE8]">
+    <div className="w-full bg-[#F1EEE8]">
       <HeroSection />
-      <ServiciosVisitadosSection />
       <CuadriculaPrincipalSection />
       <RecursosInstitucionalesSection />
       <NoticiasSection />
       <ContactoApoyoSection />
-    </main>
+    </div>
   );
 };
 
